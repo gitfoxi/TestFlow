@@ -2,61 +2,58 @@
 -- Testflow Syntax
 --
 -- Data representing the BNF
+--
+-- This was an attempt to craft data structures by hand. I'm probably going to
+-- use bnfc to do it instead.
+
+module Language.TestFlow.Syntax where
+
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Text as Text
+import           Data.Text (Text)
 
 data TestFlow =
   TestFlow
-    { langRev :: LangRev
-    , sections :: Sections
+    { langRev :: Int
+    , information :: Information
+    , declarations :: Declarations
+    , flags :: Flags
+    , tests :: Tests
+    , testfunctions :: Testfunction
+    , datasets :: Dataset
+    , testSuites :: TestSuites
+    , initialize :: Initialize
+    , download :: Download
+    , abort :: Abort
+    , pause :: Pause
+    , reset :: Reset
+    , exit :: Exit
+    , testFlow :: TestFlow
+    , binning :: Binning
+    , context :: Setup
+    , hardwareBinDescriptions :: HardwareBinDescriptions
     }
 
-type Sections = [Section]
-
-data Section =
-  Section
-    { information :: InformationSection
-    , declarations :: DeclarationsSection
-    , flags :: FlagsSection
-    , tests :: TestsSection
-    , testfunctions :: TestfunctionSection
-    , datasets :: DatasetSection
-    , testSuites :: TestSuitesSection
-    , initialize :: InitializeSection
-    , download :: DownloadSection
-    , abort :: AbortSection
-    , pause :: PauseSection
-    , reset :: ResetSection
-    , exit :: ExitSection
-    , testFlow :: TestFlowSection
-    , binning :: BinningSection
-    , context :: SetupSection
-    , hardwareBinDescriptions :: HardwareBinDescriptionsSection
-    }
-
-data LanguageRevision =
-  LanguageRevision Int
-
-data InformationSection =
-  InformationSection
+data Information =
+  Information
    { description :: Text
    , device_name :: Text
    , device_revision :: Text
    , test_revision :: Text
    }
 
-data DeclarationsSection = [Declaration]
-
-Declaration = HashMap.Map VarName Expr
+type Declarations = HashMap.Map VarName Expr
 
 data VarName =
-    Label
+    Label Text
   | FlagName Text
   | TestSuiteFlag TestSuite Text
 
 -- TODO: * <test_suite>.ffc_on_fail}
 
-data Flags = HashMap.Map VarName Flag
+type Flags = HashMap.Map VarName Flag
 
-data FlagType = Flag | UserFlag
+data FlagType = SysFlag | UserFlag
 
 data Flag =
   Flag
@@ -75,15 +72,15 @@ data Dataset =
     { datasetLabel :: Text
     , dataSetFiles :: [Text]
     }
-   
+
 -- maps test name to optional user procedure
 type Tests = HashMap.Map Text (Maybe Text)
 
-data TestsSection
+data Tests =
   TestSuite
    { userProcedure :: Maybe Text
    , testSpec :: Text
-   } 
+   }
 {-
 <testfunction_section> := <testfunction_section> [<testfunction>]
 <testfunction> := <testfunction_identifier>:

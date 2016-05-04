@@ -12,16 +12,25 @@
 
 -- Fundamental units are A and V
 
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
+import Data.Text
+
 data ProdStage = FT | FQA
+  deriving (Eq, Show)
 
 data Good = Good | Bad
+  deriving (Eq, Show)
 
 data Pass = Pass | Fail
+  deriving (Eq, Show)
 
 ft = (== FT)
 fqa = (==FQA)
 
 data Bin =
+  Bin
   { binGood :: Good
   , binHard :: Int
   , binSoft :: Int
@@ -59,29 +68,38 @@ badHardBins = [5]
 
 binFt1 = Bin Good 1 1      "FT Iddq < 24A Fmax > 1600MHz" -- binDesc could be derived from binSpec so bad redundancy
 binFt2 = Bin Good 2 2      "FT Iddq < 21A Fmax > 1700MHz"
-binFtFail = Bin Fail 5 999 "Can't satisfy any good bin"
+binFtFail = Bin Bad 5 999 "Can't satisfy any good bin"
 
 mega = (* 1000000)
 
+prodstage :: M ProdStage
 prodstage = return FT -- dummy for testing
 
+{-
 binOut :: ProdStage -> Iddq -> Fmax -> Bin
 binOut FT = BinSpec ftBinning
+-}
 
-satisfyBinSpec 
+
 
 type M = IO -- my monad for now
 
-continuity :: M Pass
-continuity = return Pass
+runContinuity :: M Pass
+runContinuity = return Pass
 
-iddq :: M Double
-iddq = return 12.5
+runIddq :: M Double
+runIddq = return 12.5
 
-data MHz =  MHz Double
+newtype MHz =  MHz Double
+  deriving (Eq, Show, Num)
 
-fmax :: M MHz
-fmax = return (MHz 1650.0)
+runFmax :: M MHz
+runFmax = return (MHz 1650.0)
+
+getProdStage = return FT
+
+type Iddq = Double
+type Fmax = Double
 
 main = do
 
@@ -96,5 +114,7 @@ main = do
 
   let
     bin :: ProdStage -> Iddq -> Fmax -> Bin
-    bin FT iddq
-      | iddq < 24 && Fmax > mega 1600 = binft1
+    bin FT iddq fmax
+      | iddq < 24 && fmax > mega 1600 = binFt1
+
+  return ()
